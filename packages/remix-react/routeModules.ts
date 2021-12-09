@@ -19,6 +19,7 @@ export interface RouteModule {
   handle?: RouteHandle;
   links?: LinksFunction;
   meta?: MetaFunction | HtmlMetaDescriptor;
+  Fallback?: any; // TODO: NO ANY!!!!!
   unstable_shouldReload?: ShouldReloadFunction;
 }
 

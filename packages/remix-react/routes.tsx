@@ -33,6 +33,7 @@ export interface EntryRoute extends Route {
   hasLoader: boolean;
   hasCatchBoundary: boolean;
   hasErrorBoundary: boolean;
+  hasFallback: boolean;
   imports?: string[];
   module: string;
   parentId?: string;

@@ -7,7 +7,8 @@ export function links() {
   return [{ rel: "stylesheet", href: stylesHref }];
 }
 
-export function loader() {
+export async function loader() {
+  // await new Promise(resolve => setTimeout(resolve, 1000));
   let data = {
     users: [
       { id: "ryanflorence", name: "Ryan Florence" },
@@ -21,6 +22,16 @@ export function loader() {
     }
   });
 }
+// loader.suspend = true;
+
+// export function Fallback() {
+//   return (
+//     <div>
+//       <h1>Loading sidebar</h1>
+//       <Outlet />
+//     </div>
+//   )
+// }
 
 export function headers({ loaderHeaders }) {
   return {

@@ -19,6 +19,8 @@ let fakeGists = [
 ];
 
 export async function loader({ params }) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  // throw new Error("ROFL");
   let { username } = params;
 
   if (username === "mjijackson") {
@@ -29,8 +31,8 @@ export async function loader({ params }) {
     return json(null, { status: 404 });
   }
 
+  return fakeGists;
   if (process.env.NODE_ENV === "test") {
-    return fakeGists;
   }
 
   let response = await fetch(`https://api.github.com/users/${username}/gists`);
@@ -40,6 +42,10 @@ export async function loader({ params }) {
       "Cache-Control": response.headers.get("Cache-Control")
     }
   });
+}
+
+export function Fallback() {
+  return <h1>Loading user data...</h1>;
 }
 
 export function headers() {

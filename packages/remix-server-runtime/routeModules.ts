@@ -69,6 +69,7 @@ export interface LoaderFunction {
     | Response
     | Promise<AppData>
     | AppData;
+  suspend?: boolean;
 }
 
 /**
@@ -120,4 +121,5 @@ export interface ServerRouteModule extends EntryRouteModule {
   action?: ActionFunction;
   headers?: HeadersFunction | { [name: string]: string };
   loader?: LoaderFunction;
+  Fallback?: any; // TODO: NO ANY!!!!
 }

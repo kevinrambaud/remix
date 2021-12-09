@@ -300,15 +300,37 @@ async function renderDocumentRequest({
   }
 
   let routeLoaderResults = await Promise.allSettled(
-    matchesToLoad.map(match =>
-      match.route.module.loader
+    matchesToLoad.map(async match => {
+      if (match.route.module.Fallback) {
+        let promise = callRouteLoader({
+          loadContext,
+          match,
+          request
+        });
+        // let res = await Promise.race([
+        //   new Promise<void>(
+        //     resolve =>
+        //       setTimeout(() => {
+        //         resolve();
+        //       }, 500) // TODO: Make configurable via route export
+        //   ),
+        //   promise
+        // ]);
+
+        // if (res !== void 0) {
+        throw promise.then(response => extractData(response));
+        // }
+        // return promise;
+      }
+
+      return match.route.module.loader
         ? callRouteLoader({
             loadContext,
             match,
             request
           })
-        : Promise.resolve(undefined)
-    )
+        : Promise.resolve(undefined);
+    })
   );
 
   // Store the state of the action. We will use this to determine later
@@ -360,7 +382,9 @@ async function renderDocumentRequest({
       appState.loaderBoundaryRouteId = match.route.id;
     }
 
-    if (error) {
+    if (error && error instanceof Promise) {
+      routeData[match.route.id] = error;
+    } else if (error) {
       loaderStatusCodes.push(500);
       appState.trackBoundaries = false;
       appState.error = await serializeError(error);
@@ -466,7 +490,8 @@ async function renderDocumentRequest({
       request.clone(),
       responseStatusCode,
       responseHeaders,
-      entryContext
+      entryContext,
+      loadContext
     );
   } catch (error: any) {
     responseStatusCode = 500;
@@ -486,7 +511,8 @@ async function renderDocumentRequest({
         request.clone(),
         responseStatusCode,
         responseHeaders,
-        entryContext
+        entryContext,
+        loadContext
       );
     } catch (error: any) {
       if (serverMode !== ServerMode.Test) {
