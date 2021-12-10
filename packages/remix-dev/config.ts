@@ -70,10 +70,24 @@ export interface AppConfig {
    */
   devServerPort?: number;
   /**
-   * The delay before the dev server broadcasts a reload event
+   * The delay before the dev server broadcasts a reload event.
    */
   devServerBroadcastDelay?: number;
 
+  /**
+   * Configuration that effects how the bundles are generated.
+   */
+  compilerOptions?: Partial<RemixCompilerOptions>;
+
+  /**
+   * Additional MDX remark / rehype plugins.
+   * @deprecated Use `compilerOptions.mdx` instead.
+   */
+  mdx?: RemixMdxConfig | RemixMdxConfigFunction;
+}
+
+export interface RemixCompilerOptions {
+  serverFormat: "esm" | "cjs";
   mdx?: RemixMdxConfig | RemixMdxConfigFunction;
 }
 
@@ -141,7 +155,10 @@ export interface RemixConfig {
    */
   devServerBroadcastDelay: number;
 
-  mdx?: RemixMdxConfig | RemixMdxConfigFunction;
+  /**
+   * Configuration that effects how the bundles are generated.
+   */
+  compilerOptions: RemixCompilerOptions;
 }
 
 /**
@@ -169,6 +186,16 @@ export async function readConfig(
   } catch (error) {
     throw new Error(`Error loading Remix config in ${configFile}`);
   }
+
+  let compilerOptions: RemixCompilerOptions = {
+    serverFormat: "cjs",
+    mdx: appConfig.mdx
+  };
+
+  compilerOptions = {
+    ...compilerOptions,
+    ...(appConfig.compilerOptions || {})
+  };
 
   let appDirectory = path.resolve(
     rootDirectory,
@@ -243,7 +270,7 @@ export async function readConfig(
     routes,
     serverBuildDirectory,
     serverMode,
-    mdx: appConfig.mdx
+    compilerOptions
   };
 }
 
